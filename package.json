@@ -13,7 +13,13 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "@babel/generator": "^7.21.1",
     "@babel/parser": "^7.21.2",
+    "@babel/traverse": "^7.21.2",
+    "@babel/types": "^7.21.2",
+    "buffer": "^6.0.3",
+    "mockjs": "^1.1.0",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
