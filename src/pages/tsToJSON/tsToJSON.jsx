@@ -20,7 +20,7 @@ const TsToJSON = () => {
         inputRef.current = e.target.value
       }} />
       <button onClick={() => {
-        console.log(inputRef.current, textareaRef.current)
+        // console.log(inputRef.current, textareaRef.current)
         const value = parser.parse(textareaRef.current, {
           plugins: ['typescript'],
           sourceType: 'module'
@@ -31,27 +31,43 @@ const TsToJSON = () => {
           //   console.log('ExportNamedDeclaration', path)
           // },
           TSInterfaceDeclaration: (path) => {
-            console.log(path)
+            // console.log(path)
             if (path.node.body.type === 'TSInterfaceBody') {
-
               genMockFactoy[path.node.id.name] = path.node.body.body.reduce((total, item) => {
                 Object.defineProperty(total, item.key.name, {
                   enumerable: true,
                   configurable: false,
                   get: () => {
-                    if (item.typeAnnotation.typeAnnotation.type === babelTypes.TSStringKeyword().type) {
-                      return Random.string()
+                    if (item.typeAnnotation.typeAnnotation.type === 'TSStringKeyword') {
+                      return Random.string(10)
                     }
                     if (Array.isArray(item.typeAnnotation.typeAnnotation.types)) {
                       const notNullType = item.typeAnnotation.typeAnnotation.types.find(item => {
-                        return !babelTypes.isTSNullKeyword(item)
+                        return item.type !== 'TSNullKeyword'
                       })
                       if (!notNullType) {
                         return null
                       }
-                      if (babelTypes.TSArrayType(notNullType)) {
-                        return Array.from({ length: 3 }).map(() => genMockFactoy[notNullType.elementType.typeName.name])
+                      if (notNullType.type === 'TSStringKeyword') {
+                        return Random.string(10)
                       }
+                      if (notNullType.type === 'TSNumberKeyword') {
+                        return Random.natural()
+                      }
+                      if (notNullType.type === 'TSArrayType') {
+                        if (notNullType.elementType.type === 'TSStringKeyword') {
+                          return Array.from({ length: 3 }).map(() => Random.string(10))
+                        }
+                      }
+                      if (notNullType.type === 'TSArrayType') {
+                        if (notNullType.elementType.type === 'TSStringKeyword') {
+                          return Array.from({ length: 3 }).map(() => Random.string(10))
+                        }
+                        if (notNullType.elementType.type === 'TSTypeReference') {
+                          return genMockFactoy[notNullType.elementType.typeName.name]
+                        }
+                      }
+
                     }
                     return undefined
                   }
@@ -68,7 +84,7 @@ const TsToJSON = () => {
           //   console.log('TSEnumDeclaration', path)
           // },
         });
-        console.log(genMockFactoy)
+        window.genMockFactoy = genMockFactoy
       }}>开始mock</button>
     </div >
   );
