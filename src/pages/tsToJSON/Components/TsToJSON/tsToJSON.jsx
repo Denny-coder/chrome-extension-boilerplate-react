@@ -74,6 +74,8 @@ const TsToJSON = () => {
                 })
                 return total
               }, {})
+            } else {
+              console.log(path)
             }
 
           },
@@ -84,6 +86,7 @@ const TsToJSON = () => {
           //   console.log('TSEnumDeclaration', path)
           // },
         });
+        console.log('genMockFactoy', genMockFactoy)
         window.genMockFactoy = genMockFactoy
       }}>开始mock</button>
     </div >

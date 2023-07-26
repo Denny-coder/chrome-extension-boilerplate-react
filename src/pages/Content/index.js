@@ -1,6 +1,26 @@
-import { printLine } from './modules/print';
+console.log('这是内容脚本执行的');
 
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('request, sender, sendResponse', request, sender, sendResponse);
+  if (request.type === 'getPageInfo') {
+    var regex =
+      /&lt;i data-key='(.*?)' data-appid='(.*?)'&gt;(.*?)&lt;\/i&gt;/g;
+    var matches = document.body.innerHTML.matchAll(regex);
 
-printLine("Using the 'printLine' function from the Print Module");
+    var resultMap = {};
+
+    for (var match of matches) {
+      var dataKey = match[1];
+      var dataAppId = match[2];
+
+      if (!resultMap[dataAppId]) {
+        resultMap[dataAppId] = [];
+      }
+
+      resultMap[dataAppId].push(dataKey);
+    }
+    console.log('resultMap', resultMap);
+    sendResponse(resultMap);
+  }
+  return true;
+});

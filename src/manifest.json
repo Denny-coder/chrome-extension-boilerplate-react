@@ -5,9 +5,16 @@
   "background": {
     "service_worker": "background.bundle.js"
   },
+  "host_permissions": ["http://*/", "https://*/"],
+  "externally_connectable": {
+    "matches": ["*://*.ctripcorp.com/*"]
+  },
   "action": {
+    "default_popup": "tsToJSON.html",
+    "default_title": "PopUpOFF - Click to open",
     "default_icon": "icon-34.png"
   },
+  "permissions": ["activeTab", "storage", "tabs", "contextMenus"],
   "chrome_url_overrides": {
     "tsToJSON": "tsToJSON.html"
   },
@@ -16,28 +23,17 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "<all_urls>"
-      ],
-      "js": [
-        "contentScript.bundle.js"
-      ],
-      "css": [
-        "content.styles.css"
-      ]
+      "js": ["contentScript.bundle.js"],
+      "css": ["content.styles.css"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_end"
     }
   ],
   "devtools_page": "devtools.html",
   "web_accessible_resources": [
     {
-      "resources": [
-        "content.styles.css",
-        "icon-128.png",
-        "icon-34.png"
-      ],
-      "matches": []
+      "resources": ["content.styles.css", "icon-128.png", "icon-34.png"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
