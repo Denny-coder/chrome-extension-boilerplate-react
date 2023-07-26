@@ -2,7 +2,7 @@
  * @Author: k.zheng k.zheng@trip.com
  * @Date: 2023-07-24 18:40:33
  * @LastEditors: k.zheng k.zheng@trip.com
- * @LastEditTime: 2023-07-26 14:53:42
+ * @LastEditTime: 2023-07-26 14:57:31
  * @FilePath: /chrome-extension-boilerplate-react/src/pages/tsToJSON/tsToJSON copy.jsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -79,8 +79,11 @@ const SharkPageId = () => {
                             result.push(appPage)
                           }
                         }
-                        setAppidWithpageIds(result.flat().join(","))
+                        const tips = result.flat().join(",")
+                        setAppidWithpageIds(tips)
                         setStatus(2)
+                        chrome.tabs.sendMessage(tabs[0].id, { type: 'getPageInfoTips', tips })
+
                       } else {
                         setStatus(3)
                         setStatusTips(' shark拉取失败')
