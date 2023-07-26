@@ -2,7 +2,7 @@
  * @Author: k.zheng k.zheng@trip.com
  * @Date: 2023-07-24 18:40:33
  * @LastEditors: k.zheng k.zheng@trip.com
- * @LastEditTime: 2023-07-26 13:52:13
+ * @LastEditTime: 2023-07-26 14:53:42
  * @FilePath: /chrome-extension-boilerplate-react/src/pages/tsToJSON/tsToJSON copy.jsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -29,7 +29,7 @@ const SharkPageId = () => {
       {statusTips ? <div style={{
         textAlign: 'center',
       }}>{statusTips}</div> : null}
-      {Array.isArray(appidWithpageIds) ? <div>{appidWithpageIds.map(item => <div style={{ lineHeight: '30px' }}>{item}</div>)}</div> : null}
+      {appidWithpageIds ? <div>{<div style={{ lineHeight: '30px' }}>{appidWithpageIds}</div>}</div> : null}
       <div>
         shark_token: <input type="text" onChange={(e) => {
           setSharkToken(e.target.value)
@@ -50,14 +50,14 @@ const SharkPageId = () => {
 
             // send msg to content script with new active mode
             chrome.tabs.sendMessage(tabs[0].id, { type: 'getPageInfo' }, clientInfo => {
-              if (JSON.stringify(clientInfo) !== '{}') {
+              if (JSON.stringify(clientInfo) !== '{}' && clientInfo) {
                 console.log(clientInfo)
                 const appids = Object.keys(clientInfo).join('_')
                 var requestOptions = {
                   method: 'GET',
                   redirect: 'follow'
                 };
-                const result = {}
+                const result = []
                 fetch(`http://corp-shark-node-api-function.faas.qa.nt.ctripcorp.com/sharkKeyList?appids=${appids}&shark_token=${sharkToken ? sharkToken : '8429dcac92be89551b14867e4db82f95'}`, requestOptions)
                   .then(response => response.text())
                   .then(res => {
@@ -65,21 +65,21 @@ const SharkPageId = () => {
                     if (Array.isArray(resParse?.sharkList)) {
                       if (resParse?.sharkList.length) {
                         const appidKeyPageMap = resParse?.sharkList.reduce((total, item) => {
-                          total[`${item.transKey}_${item.appID}`] = item.pageID
+                          total[`${item.transKey}_${item.appID}`] = item.pageID.toString()
                           return total
                         }, {})
                         for (const appID in clientInfo) {
                           if (Object.hasOwnProperty.call(clientInfo, appID)) {
-                            result[appID] = new Set(clientInfo[appID].reduce((total, transKey) => {
-                              total.push(appidKeyPageMap[`${transKey}_${appID}`])
-
+                            const appPage = Array.from(new Set(clientInfo[appID].reduce((total, transKey) => {
+                              total.push(JSON.stringify({
+                                "appid": appID, "pageid": appidKeyPageMap[`${transKey}_${appID}`]
+                              }))
                               return total
-                            }, []))
+                            }, [])))
+                            result.push(appPage)
                           }
                         }
-                        setAppidWithpageIds(Object.keys(result).map(key => {
-                          return `${key}:${Array.from(result[key]).sort().join(' ')}`
-                        }))
+                        setAppidWithpageIds(result.flat().join(","))
                         setStatus(2)
                       } else {
                         setStatus(3)
