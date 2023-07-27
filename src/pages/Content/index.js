@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('resultMap', resultMap);
     sendResponse(resultMap);
   }
-  if (request.type === 'getPageInfoTips') {
+  if (request.type === 'console') {
     console.log(request.tips);
   }
   return true;
